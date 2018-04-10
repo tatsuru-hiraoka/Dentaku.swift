@@ -9,15 +9,58 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    @IBOutlet var formulaLabel :UILabel!
+    /*@IBOutlet var AC :UIButton!
+    @IBOutlet var Change :UIButton!
+    @IBOutlet var Answer :UIButton!
+    @IBOutlet var Input :UIButton!
+    @IBOutlet var Comma :UIButton!
+    @IBOutlet var Function :UIButton!*/
+    var first:String?
+    var second:String?
+    var third:String?
+    let Function1=false
+    let Function2=false
+    let FP=false
+    let SP=false
+    let TP=false
+    let FM
+    
+    
+   
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        
+    }
+    
+    @IBAction func AC(sender:UIButton){
+        
+    }
+    
+    @IBAction func Input(sender:UIButton){
+        
+    }
+    
+    @IBAction func Comma(sender:UIButton){
+        
+    }
+    
+    @IBAction func Change(sender:UIButton){
+        
+    }
+    
+    @IBAction func Function(sender:UIButton){
+        
+    }
+    
+    @IBAction func Answer(sender:UIButton){
+        print("answer")
     }
 
 
