@@ -19,20 +19,20 @@ class ViewController: UIViewController {
     var first:String?
     var second:String?
     var third:String?
-    let Function1=false
-    let Function2=false
-    let FP=false
-    let SP=false
-    let TP=false
-    let FM=false
-    let SM=false
-    let TM=false
-    let FK=false
-    let SK=false
-    let TK=false
-    let FD=false
-    let SD=false
-    let TD=false
+    let function1=false
+    let function2=false
+    let isFirstPuls=false
+    let isSecondPuls=false
+    let isThirdPlus=false
+    let isFirstMinus=false
+    let isSecondMinus=false
+    let isThirdMinus=false
+    let isFirstMultiplication=false
+    let isSecondMultiplication=false
+    let isThirdMultiplication=false
+    let isFirstDivision=false
+    let isSecondDivision=false
+    let isThirdDivision=false
     
     override func viewDidLoad() {
         super.viewDidLoad()
