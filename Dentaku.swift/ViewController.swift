@@ -10,29 +10,17 @@ import UIKit
 
 class ViewController: UIViewController {
     @IBOutlet var formulaLabel :UILabel!
-    var firstInputString :String?
-    var secondInputString :String?
-    var thirdInputString :String?
-    var isFirstFunction :Bool = false
-    var isSecondFunction :Bool = false
-    var isFirstPlus:Bool=false
-    var isSecondPlus:Bool=false
-    var isThirdPlus:Bool=false
-    var isFirstMinus:Bool=false
-    var isSecondMinus:Bool=false
-    var isThirdMinus:Bool=false
-    var isFirstMultiplication:Bool=false
-    var isSecondMultiplication:Bool=false
-    var isThirdMultiplication:Bool=false
-    var isFirstDivision:Bool=false
-    var isSecondDivision:Bool=false
-    var isThirdDivision:Bool=false
-    var isFirstPercent:Bool=false
-    var isSecondPercent:Bool=false
-    var isThirdPercent:Bool=false
+    var operationBtnStr:String = ""
+    var isOperation :Bool = false
+    var isInput :Bool = false
+    var count :Int = 0
+    var firstInputStrNum: Double = 0
+    var secondInputStrNum: Double = 0
+    var thirdInputStrNum: Double = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        formulaLabel.text = "0"
     }
 
     override func didReceiveMemoryWarning() {
@@ -41,75 +29,47 @@ class ViewController: UIViewController {
     }
     
     @IBAction func acButtonPush(sender:UIButton){
+        count = 0
         formulaLabel.text = "0"
-        firstInputString = nil
-        secondInputString = nil
-        thirdInputString = nil
-        isFirstFunction = false
-        isSecondFunction = false
-        isFirstPlus = false
-        isFirstMinus = false
-        isFirstMultiplication = false
-        isFirstDivision = false
-        isFirstPercent = false
-        isSecondPlus = false
-        isSecondMinus = false
-        isSecondMultiplication = false
-        isSecondDivision = false
-        isSecondPercent = false
-        isThirdPlus = false
-        isThirdMinus = false
-        isThirdMultiplication = false
-        isThirdDivision = false
-        isThirdPercent = false
+        operationBtnStr = ""
+        isOperation = false
+        isInput = false
     }
     
+    //数字入力
     @IBAction func numbersButtonInput(sender:UIButton){
-        if isFirstFunction {
-            if formulaLabel.text!.hasPrefix("0.")||formulaLabel.text!.hasPrefix("-0.") {
-                formulaLabel.text=formulaLabel.text!+sender.titleLabel!.text!
-                print("input1")
-            }else if formulaLabel.text!.hasPrefix("0") {
-                formulaLabel.text=""
-                formulaLabel.text=sender.titleLabel!.text
-                print("input2")
-            }else if formulaLabel.text!.hasPrefix("-0"){
-                formulaLabel.text=""
-                formulaLabel.text="-"+sender.titleLabel!.text!
-            }else{
-                formulaLabel.text=""
-                formulaLabel.text=formulaLabel.text! + sender.titleLabel!.text!
-                print("input3")
-            }
-            isFirstFunction=false
+        //小数点がある場合
+        if formulaLabel.text!.hasPrefix("0.") || formulaLabel.text!.hasPrefix("-0.") {
+            formulaLabel.text = formulaLabel.text! + sender.titleLabel!.text!
+            print("input1")
+        }else if formulaLabel.text!.hasPrefix("0") {
+            formulaLabel.text = ""
+            formulaLabel.text = sender.titleLabel!.text
+            print("input2")
+        }else if formulaLabel.text!.hasPrefix("-0"){
+            formulaLabel.text = ""
+            formulaLabel.text = "-" + sender.titleLabel!.text!
         }else{
-            if formulaLabel.text!.hasPrefix("0.")||formulaLabel.text!.hasPrefix("-0.") {
-                formulaLabel.text=formulaLabel.text!+sender.titleLabel!.text!
-                print("input1")
-            }else if formulaLabel.text!.hasPrefix("0"){
-                formulaLabel.text=""
-                formulaLabel.text=sender.titleLabel!.text
-                print("input2")
-            }else if formulaLabel.text!.hasPrefix("-0"){
-                formulaLabel.text=""
-                formulaLabel.text="-"+sender.titleLabel!.text!
-            }else{
-                formulaLabel.text=formulaLabel.text!+sender.titleLabel!.text!
-                print("input3")
+            if isOperation{//演算子を選んだ直後
+                formulaLabel.text = ""
+                isOperation = false
             }
+            formulaLabel.text = formulaLabel.text! + sender.titleLabel!.text!
+            print("input3")
         }
-        isSecondFunction=true
+        isInput = true
     }
     
-    @IBAction func commaButtonInput(sender:UIButton){
-        let comma = "."
-        //formulaLabelの中にコンマがなかったら入力できる
-        guard formulaLabel.text!.contains(comma)else{
-            formulaLabel.text!=formulaLabel.text!+sender.titleLabel!.text!
+    @IBAction func dotButtonInput(sender:UIButton){
+        let dot = "."
+        //formulaLabelの中に小数点がなかったら入力できる
+        guard formulaLabel.text!.contains(dot) else {
+            formulaLabel.text! = formulaLabel.text! + dot
             return
         }
     }
     
+    //+と-を入れ替える
     @IBAction func plusOrMinusButtonChange(sender:UIButton){
         if formulaLabel.text!.hasPrefix("-") {
             formulaLabel.text!=String(formulaLabel.text![formulaLabel.text!.index(formulaLabel.text!.startIndex, offsetBy: 1)..<formulaLabel.text!.endIndex])
@@ -118,464 +78,302 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func functionButtonSelect(sender:UIButton){
-        let isPlus:Bool=sender.titleLabel?.text!=="+"
-        let isMinus:Bool=sender.titleLabel?.text!=="-"
-        let isMultiplication:Bool=sender.titleLabel?.text!=="×"
-        let isDivision:Bool=sender.titleLabel?.text!=="÷"
-        let isPercent:Bool=sender.titleLabel?.text!=="%"
-        isFirstFunction=true
-        
-        if isSecondFunction==false {
-            if secondInputString==nil{
-                if isPlus{
-                    isFirstPlus=true;isFirstMinus=false;isFirstMultiplication=false;isFirstDivision=false;isFirstPercent=false;
-                }else if isMinus{
-                    isFirstPlus=false;isFirstMinus=true;isFirstMultiplication=false;isFirstDivision=false;isFirstPercent=false;
-                }else if isMultiplication{
-                    isFirstPlus=false;isFirstMinus=false;isFirstMultiplication=true;isFirstDivision=false;isFirstPercent=false;
-                }else if isDivision{
-                    isFirstPlus=false;isFirstMinus=false;isFirstMultiplication=false;isFirstDivision=true;isFirstPercent=false;
-                }else if isPercent{
-                    isFirstPlus=false;isFirstMinus=false;isFirstMultiplication=false;isFirstDivision=false;isFirstPercent=true;
-                }
-            }else if thirdInputString==nil{
-                if isPlus{
-                    isSecondPlus=true;isSecondMinus=false;isSecondMultiplication=false;isSecondDivision=false;isSecondPercent=false;
-                }else if isMinus{
-                    isSecondPlus=false;isSecondMinus=true;isSecondMultiplication=false;isSecondDivision=false;isSecondPercent=false;
-                }else if isMultiplication{
-                    isSecondPlus=false;isSecondMinus=false;isSecondMultiplication=true;isSecondDivision=false;isSecondPercent=false;
-                }else if isDivision{
-                    isSecondPlus=false;isSecondMinus=false;isSecondMultiplication=false;isSecondDivision=true;isSecondPercent=false;
-                }else if isPercent{
-                    isSecondPlus=false;isSecondMinus=false;isSecondMultiplication=false;isSecondDivision=false;isSecondPercent=true;
-                }
+    //+,-,×,÷,%,ボタン
+    @IBAction func operationButtonSelect(sender:UIButton){
+        if isInput {//数字が入力された直後
+            isInput = false
+            isOperation = true
+            switch count {
+            case 0://１回目の選択(1+
+                //選択した演算子のボタンのタイトルラベル文字列が入る
+                operationBtnStr = (sender.titleLabel?.text)!
+                //現在、表示されている数字をDoubleにして１番目として保存
+                firstInputStrNum = NSString(string: formulaLabel.text!).doubleValue
+                print(firstInputStrNum)
+            case 1://２回目の選択(1+2×
+                //最初の演算子の文字列に選択した演算子の文字列をたす
+                operationBtnStr = operationBtnStr + (sender.titleLabel?.text!)!
+                //現在、表示されている数字をDoubleにして２番目として保存
+                secondInputStrNum = NSString(string: formulaLabel.text!).doubleValue
+                print(secondInputStrNum)
+            case 2://３回目(1+2×3+
+                operationBtnStr = operationBtnStr + (sender.titleLabel?.text!)!
+                //現在、表示されている数字をDoubleにして３番目として保存
+                thirdInputStrNum = NSString(string: formulaLabel.text!).doubleValue
+                print(thirdInputStrNum)
+            default:
+                break
             }
-        }else{
-            if firstInputString==nil{
-                firstInputString=formulaLabel.text!
-                if isPlus{
-                    isFirstPlus=true
-                }else if isMinus{
-                    isFirstMinus=true
-                }else if isMultiplication{
-                    isFirstMultiplication=true
-                }else if isDivision{
-                    isFirstDivision=true
-                }else if isPercent{
-                    isFirstPercent=true
-                }
-            }else if secondInputString==nil{
-                secondInputString=formulaLabel.text!
-                if isPlus{
-                    isSecondPlus=true
-                }else if isMinus{
-                    isSecondMinus=true
-                }else if isMultiplication{
-                    isSecondMultiplication=true
-                }else if isDivision{
-                    isSecondDivision=true
-                }else if isPercent{
-                    isSecondPercent=true
-                }
-            }else if thirdInputString==nil{
-                thirdInputString=formulaLabel.text!
-                if isPlus{
-                    isThirdPlus=true
-                }else if isMinus{
-                    isThirdMinus=true
-                }else if isMultiplication{
-                    isThirdMultiplication=true
-                }else if isDivision{
-                    isThirdDivision=true
-                }else if isPercent{
-                    isThirdPercent=true
-                }
+            count += 1
+        }else {//operationButtonSelectの連打 演算子が訂正（再選択）された場合
+            switch count{
+            case 1:
+                operationBtnStr = (sender.titleLabel?.text)!
+            case 2://operationBtnStrの末尾１文字を削除し、新しく選択された演算子を追加する
+                let text = operationBtnStr.prefix((operationBtnStr.count)-1)
+                operationBtnStr = text + (sender.titleLabel?.text!)!
+                print(operationBtnStr)
+            case 3:
+                let text = operationBtnStr.prefix((operationBtnStr.count)-1)
+                operationBtnStr = text + (sender.titleLabel?.text!)!
+                print(operationBtnStr)
+            default://数字が入力されてない状態で演算子のみ選択されたら
+                //選択した演算子のボタンのタイトルラベル文字列が入る
+                operationBtnStr = (sender.titleLabel?.text)!
+                firstInputStrNum = 0
+                count = 1
             }
-            let secondInputStringNum: Double?
-            let thirdInputStringNum: Double?
-            let firstInputStringNum: Double? = NSString(string: firstInputString!).doubleValue
-            if secondInputString != nil {
-                secondInputStringNum = NSString(string: secondInputString!).doubleValue
-            }
-            else {
-                secondInputStringNum = 0
-            }
-            if thirdInputString != nil {
-                thirdInputStringNum = NSString(string: thirdInputString!).doubleValue
-            }
-            else {
-                thirdInputStringNum = 0
-            }
-            
-            if (isFirstPlus && isSecondPlus) {
-                let answer:Double = firstInputStringNum! + secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isSecondPlus = false
-            }else if (isFirstPlus && isSecondMinus) {
-                let answer:Double = firstInputStringNum! - secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isSecondMinus = false
-            }else if (isFirstMinus && isSecondPlus) {
-                let answer:Double = firstInputStringNum! - secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isFirstPlus = true
-                isFirstMinus = false
-                isSecondPlus = false
-            }else if (isFirstMinus && isSecondMinus) {
-                let answer:Double = firstInputStringNum! - secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isSecondMinus = false
-            }else if (isFirstMultiplication && isSecondPlus) {
-                let answer:Double = firstInputStringNum! * secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isFirstMultiplication = false
-                isFirstPlus = true
-                isSecondPlus = false
-            }else if (isFirstMultiplication && isSecondMinus) {
-                let answer:Double = firstInputStringNum! * secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isFirstMultiplication = false
-                isFirstMinus = true
-                isSecondMinus = false
-            }else if (isFirstMultiplication && isSecondMultiplication) {
-                let answer:Double = firstInputStringNum! * secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isSecondMultiplication = false
-            }else if (isFirstMultiplication && isSecondDivision) {
-                let answer:Double = firstInputStringNum! * secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isFirstDivision = true
-                isFirstMultiplication = false
-                isSecondDivision = false
-            }else if (isFirstDivision && isSecondPlus) {
-                let answer:Double = firstInputStringNum! / secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isFirstDivision = false
-                isFirstPlus = true
-                isSecondPlus = false
-            }else if (isFirstDivision && isSecondMinus) {
-                let answer:Double = firstInputStringNum! / secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isFirstDivision = false
-                isFirstMinus = true
-                isSecondMinus = false
-            }else if (isFirstDivision && isSecondMultiplication) {
-                let answer:Double = firstInputStringNum! / secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isFirstDivision = false
-                isFirstMultiplication = true
-                isSecondMultiplication = false
-            }else if (isFirstDivision && isSecondDivision) {
-                let answer:Double = firstInputStringNum! / secondInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                isSecondDivision = false
-            }else if (isFirstPlus && isSecondMultiplication && isThirdPlus) {
-                var answer:Double = secondInputStringNum! * thirdInputStringNum!
-                answer = firstInputStringNum! + answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isSecondMultiplication = false
-                isThirdPlus = false
-            }else if (isFirstPlus && isSecondMultiplication && isThirdMinus) {
-                var answer:Double = secondInputStringNum! * thirdInputStringNum!
-                answer = firstInputStringNum! + answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isFirstPlus = false
-                isFirstMinus = true
-                isSecondMultiplication = false
-                isThirdMinus = false
-            }else if (isFirstPlus && isSecondMultiplication && isThirdMultiplication) {
-                let answer:Double = secondInputStringNum! * thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isThirdMultiplication = false
-            }else if (isFirstPlus && isSecondMultiplication && isThirdDivision) {
-                let answer:Double = secondInputStringNum! * thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isSecondMultiplication = false
-                isSecondDivision = true
-                isThirdDivision = false
-            }else if (isFirstPlus && isSecondDivision && isThirdPlus) {
-                var answer:Double = secondInputStringNum! / thirdInputStringNum!
-                answer = firstInputStringNum! + answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isSecondDivision = false
-                isThirdPlus = false
-            }else if (isFirstPlus && isSecondDivision && isThirdMinus) {
-                var answer:Double = secondInputStringNum! / thirdInputStringNum!
-                answer = firstInputStringNum! + answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isFirstPlus = false
-                isFirstMinus = true
-                isSecondDivision = false
-                isThirdMinus = false
-            }else if (isFirstPlus && isSecondDivision && isThirdMultiplication) {
-                let answer:Double = secondInputStringNum! / thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isSecondDivision = false
-                isSecondMultiplication = true
-                isThirdMultiplication = false
-            }else if (isFirstPlus && isSecondDivision && isThirdDivision) {
-                let answer:Double = secondInputStringNum! / thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isThirdDivision = false
-            }else if (isFirstMinus && isSecondMultiplication && isThirdPlus) {
-                var answer:Double = secondInputStringNum! * thirdInputStringNum!
-                answer = firstInputStringNum! - answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isFirstPlus = true
-                isFirstMinus = false
-                isSecondMultiplication = false
-                isThirdPlus = false
-            }else if (isFirstMinus && isSecondMultiplication && isThirdMinus) {
-                var answer:Double = secondInputStringNum! * thirdInputStringNum!
-                answer = firstInputStringNum! - answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isSecondMultiplication = false
-                isThirdMinus = false
-            }else if (isFirstMinus && isSecondMultiplication && isThirdMultiplication) {
-                let answer:Double = secondInputStringNum! * thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isThirdMultiplication = false
-            }else if (isFirstMinus && isSecondMultiplication && isThirdDivision) {
-                let answer:Double = secondInputStringNum! * thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isSecondMultiplication = false
-                isSecondDivision = true
-                isThirdDivision = false
-            }else if (isFirstMinus && isSecondDivision && isThirdPlus) {
-                var answer:Double = secondInputStringNum! / thirdInputStringNum!
-                answer = firstInputStringNum! - answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isFirstPlus = true
-                isFirstMinus = false
-                isSecondDivision = false
-                isThirdPlus = false
-            }else if (isFirstMinus && isSecondDivision && isThirdMinus) {
-                var answer:Double = secondInputStringNum! / thirdInputStringNum!
-                answer = firstInputStringNum! - answer
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                secondInputString = nil
-                thirdInputString = nil
-                isSecondDivision = false
-                isThirdMinus = false
-            }else if (isFirstMinus && isSecondDivision && isThirdMultiplication) {
-                let answer:Double = secondInputStringNum! / thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isSecondDivision = false
-                isSecondMultiplication = true
-                isThirdMultiplication = false
-            }else if (isFirstMinus && isSecondDivision && isThirdDivision) {
-                let answer:Double = secondInputStringNum! / thirdInputStringNum!
-                let str: String = String(format: "%.2f", answer)
-                formulaLabel.text = str
-                secondInputString = str
-                thirdInputString = nil
-                isThirdDivision = false
-            }
+            //countは+1されない
         }
+        
+        print(count)
+        
+        var result:Double = NSString(string: formulaLabel.text!).doubleValue
+        
+        switch operationBtnStr {
+        case "++"://1+2+
+            result = firstInputStrNum + secondInputStrNum
+            print(firstInputStrNum,secondInputStrNum)
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+            print(result)
+        case "+-"://1+2-
+            result = firstInputStrNum + secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "-+"://1-2+
+            result = firstInputStrNum - secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+        case "--"://1-2-
+            result = firstInputStrNum - secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "+×","+÷","-×","-÷"://1+2× or 1+2÷ or 1-2× or 1-2÷
+            return
+        case "×+"://1×2+
+            result = firstInputStrNum * secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+        case "×-"://1×2-
+            result = firstInputStrNum * secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "××"://1×2×
+            result = firstInputStrNum * secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "*"
+            count = 1
+        case "×÷"://1×2÷
+            result = firstInputStrNum * secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "÷"
+            count = 1
+        case "÷+"://1÷2+
+            result = firstInputStrNum / secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+        case "÷-"://1÷2-
+            result = firstInputStrNum / secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "÷×"://1÷2×
+            result = firstInputStrNum / secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "×"
+            count = 1
+        case "÷÷"://1÷2÷
+            result = firstInputStrNum / secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "÷"
+            count = 1
+        case "+×+"://1+2×3+
+            result = secondInputStrNum * thirdInputStrNum
+            result = firstInputStrNum + result
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+        case "+×-"://1+2×3-
+            result = secondInputStrNum * thirdInputStrNum
+            result = firstInputStrNum + result
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "+××"://1+2×3×
+            result = secondInputStrNum * thirdInputStrNum
+            secondInputStrNum = result//1+6×
+            operationBtnStr = "+×"
+            count = 2
+        case "+×÷"://1+2×3÷
+            result = secondInputStrNum * thirdInputStrNum
+            secondInputStrNum = result//1+6÷
+            operationBtnStr = "+÷"
+            count = 2
+        case "+÷+"://1+2÷3+
+            result = secondInputStrNum / thirdInputStrNum
+            result = firstInputStrNum + result
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+        case "+÷-"://1+2÷3-
+            result = secondInputStrNum / thirdInputStrNum
+            result = firstInputStrNum + result
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "+÷×"://1+2÷3×
+            result = secondInputStrNum / thirdInputStrNum
+            secondInputStrNum = result
+            operationBtnStr = "+×"
+            count = 2
+        case "+÷÷"://1+2÷3÷
+            result = secondInputStrNum / thirdInputStrNum
+            secondInputStrNum = result
+            operationBtnStr = "+÷"
+            count = 2
+        case "-×+"://1-2×3+
+            result = secondInputStrNum * thirdInputStrNum
+            result = firstInputStrNum - result
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+        case "-×-"://1-2×3-
+            result = secondInputStrNum * thirdInputStrNum
+            result = firstInputStrNum - result
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "-××"://1-2×3×
+            result = secondInputStrNum * thirdInputStrNum
+            secondInputStrNum = result//1-6×
+            operationBtnStr = "-×"
+            count = 2
+        case "-×÷"://1-2×3÷
+            result = secondInputStrNum * thirdInputStrNum
+            secondInputStrNum = result//1-6÷
+            operationBtnStr = "-÷"
+            count = 2
+        case "-÷+"://1-2÷3+
+            result = secondInputStrNum / thirdInputStrNum
+            result = firstInputStrNum - result
+            firstInputStrNum = result
+            operationBtnStr = "+"
+            count = 1
+        case "-÷-"://1+2÷3-
+            result = secondInputStrNum / thirdInputStrNum
+            result = firstInputStrNum - result
+            firstInputStrNum = result
+            operationBtnStr = "-"
+            count = 1
+        case "-÷×"://1-2÷3×
+            result = secondInputStrNum / thirdInputStrNum
+            secondInputStrNum = result//1-0.66666667×
+            operationBtnStr = "-×"
+            count = 2
+        case "-÷÷"://1-2÷3÷
+            result = secondInputStrNum / thirdInputStrNum
+            secondInputStrNum = result//1-0.6666667÷
+            operationBtnStr = "-÷"
+            count = 2
+        default:
+            break
+        }
+        let str: String = String(format: "%.\(String(describing: result))f", result)
+        formulaLabel.text = str
     }
     
+    //=ボタン
     @IBAction func equalButtonAnswer(sender:UIButton){
-        var secondInputStringNum: Double?
-        let thirdInputStringNum: Double?
-        let firstInputStringNum: Double? = NSString(string: firstInputString!).doubleValue
-        let formulaLabelStringNum: Double? = NSString(string: formulaLabel.text!).doubleValue
-        if secondInputString != nil {
-            secondInputStringNum = NSString(string: secondInputString!).doubleValue
+        switch count {
+        case 1://1+2= or 1+=
+            //現在、表示されている数字をDoubleにして２番目として保存
+            secondInputStrNum = NSString(string: formulaLabel.text!).doubleValue
+            print(secondInputStrNum)
+        case 2://1+2×3= or 1+2×3+=
+            //現在、表示されている数字をDoubleにして３番目として保存
+            thirdInputStrNum = NSString(string: formulaLabel.text!).doubleValue
+            print(thirdInputStrNum)
+        default:
+            break
         }
-        else if secondInputString == nil {
-            secondInputStringNum = NSString(string: formulaLabel.text!).doubleValue
-            if isFirstPlus {
-                let answer:Double = firstInputStringNum! + secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("secondInputString isFirstPlus")
-            }else if isFirstMinus {
-                let answer:Double = firstInputStringNum! - secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("secondInputString isFirstMinus")
-            }else if isFirstMultiplication {
-                let answer:Double = firstInputStringNum! * secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("secondInputString isFirstMultiplication")
-            }else if isFirstDivision {
-                let answer:Double = firstInputStringNum! / secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("secondInputString isFirstDivision")
-            }
+        
+        var result:Double = NSString(string: formulaLabel.text!).doubleValue
+        
+        switch operationBtnStr {
+        case "+"://1+2= or 1+=
+            result = firstInputStrNum + secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "+"
+        case "-"://1-=
+            result = firstInputStrNum - secondInputStrNum
+            firstInputStrNum = result
+            operationBtnStr = "-"
+        case "×"://1×=
+            result = firstInputStrNum * secondInputStrNum
+            firstInputStrNum = result
+        case "÷"://1÷=
+            result = firstInputStrNum / secondInputStrNum
+            firstInputStrNum = result
+        case "+×"://1+2*3=
+            result = secondInputStrNum * thirdInputStrNum
+            secondInputStrNum = result
+            result = firstInputStrNum + secondInputStrNum
+            firstInputStrNum = result
+            secondInputStrNum = thirdInputStrNum
+            operationBtnStr = "×"//7*3
+        case "+÷"://1+2÷3=
+            result = secondInputStrNum / thirdInputStrNum
+            secondInputStrNum = result
+            result = firstInputStrNum + secondInputStrNum
+            firstInputStrNum = result
+            secondInputStrNum = thirdInputStrNum
+            operationBtnStr = "÷"//1.66666667÷3
+        case "-×"://1-2×3=
+            result = secondInputStrNum * thirdInputStrNum
+            secondInputStrNum = result
+            result = firstInputStrNum - secondInputStrNum
+            firstInputStrNum = result
+            secondInputStrNum = thirdInputStrNum
+            operationBtnStr = "÷"//-5×3
+        case "-÷"://1-2÷3=
+            result = secondInputStrNum / thirdInputStrNum
+            secondInputStrNum = result
+            result = firstInputStrNum - secondInputStrNum
+            firstInputStrNum = result
+            secondInputStrNum = thirdInputStrNum
+            operationBtnStr = "÷"//0.33333333÷3
+        default:
+            break
         }
-        if thirdInputString != nil {
-            thirdInputStringNum = NSString(string: thirdInputString!).doubleValue
-        }else {
-            secondInputStringNum = NSString(string: formulaLabel.text!).doubleValue
-            thirdInputStringNum = NSString(string: formulaLabel.text!).doubleValue
-            if isFirstPlus {
-                let answer:Double = formulaLabelStringNum! + secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("thirdInputString isFirstPlus")
-            }else if isFirstMinus {
-                let answer:Double = formulaLabelStringNum! - secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("thirdInputString isFirstMinus")
-            }else if isFirstMultiplication {
-                let answer:Double = formulaLabelStringNum! * secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("thirdInputString isFirstMultiplication")
-            }else if isFirstDivision {
-                let answer:Double = formulaLabelStringNum! / secondInputStringNum!
-                let str: String = String(format: "%f", answer)
-                formulaLabel.text = str
-                firstInputString = str
-                print("thirdInputString isFirstDivision")
-            }else if isFirstPlus && isSecondMultiplication {
-                var answer:Double = secondInputStringNum! * thirdInputStringNum!
-                answer = firstInputStringNum! + answer
-                let str: String = String(format: "%.2f", answer)
-                secondInputString = formulaLabel.text
-                formulaLabel.text = str
-                firstInputString = str
-                isFirstPlus = false
-                isFirstMultiplication = true
-                isSecondMultiplication = false
-                print("thirdInputString isFirstPlus && isSecondMultiplication")
-            }else if isFirstPlus && isSecondDivision {
-                var answer:Double = secondInputStringNum! / thirdInputStringNum!
-                answer = firstInputStringNum! + answer
-                let str: String = String(format: "%.2f", answer)
-                secondInputString = formulaLabel.text
-                formulaLabel.text = str
-                firstInputString = str
-                isFirstPlus = false
-                isFirstDivision = true
-                isSecondDivision = false
-                print("thirdInputString isFirstPlus && isSecondDivision")
-            }else if isFirstMinus && isSecondMultiplication {
-                var answer:Double = secondInputStringNum! * thirdInputStringNum!
-                answer = firstInputStringNum! - answer
-                let str: String = String(format: "%.2f", answer)
-                secondInputString = formulaLabel.text
-                formulaLabel.text = str
-                firstInputString = str
-                isFirstMinus = false
-                isFirstMultiplication = true
-                isSecondMultiplication = false
-                print("thirdInputString isFirstMinus && isSecondMultiplication")
-            }else if isFirstMinus && isSecondDivision {
-                var answer:Double = secondInputStringNum! / thirdInputStringNum!
-                answer = firstInputStringNum! - answer
-                let str: String = String(format: "%.2f", answer)
-                secondInputString = formulaLabel.text
-                formulaLabel.text = str
-                firstInputString = str
-                isFirstMinus = false
-                isFirstDivision = true
-                isSecondDivision = false
-                print("thirdInputString isFirstMinus && isSecondDivision")
-            }
-        }
+        count = 0
+        
+//        //let number = 50
+//        let formatter = NumberFormatter()
+//        formatter.numberStyle = .spellOut
+//        let str = formatter.string(from: result as NSNumber) ?? ""
+        
+//        let hoge :NSNumber = result as NSNumber
+//        //hoge = NSNumber(result)
+//        let str: String = String(format:"%f", hoge.doubleValue)
+//        formulaLabel.text = str
+        
+        //let dot: String = String(result).components(separatedBy: ".")
+        
+        let str: String = String(format: "%.\(String(describing: result))f", result)
+//        if str.hasPrefix("."){
+//            str = String(format: "%.1f", result)
+//        }else {
+//            str = String(format: "%d", result)
+//        }
+        formulaLabel.text = str
     }
-
-
 }
 
