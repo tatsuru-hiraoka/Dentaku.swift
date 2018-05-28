@@ -37,21 +37,10 @@ class ViewController: UIViewController {
     
     //数字入力
     @IBAction func numbersButtonInput(sender:UIButton){
-        //小数点がある場合
-        if formulaLabel.text!.contains(".") {
-            if isOperation || isEqual{//演算子を選んだ直後
-                formulaLabel.text = ""
-                isOperation = false
-                isEqual = false
-            }
-            formulaLabel.text = formulaLabel.text! + sender.titleLabel!.text!
-            print("dot")
-        }
-        else if formulaLabel.text!.hasPrefix("0") {
+        if formulaLabel.text!=="0" {
             formulaLabel.text = ""
             formulaLabel.text = sender.titleLabel!.text
-            print("input2")
-        }else if formulaLabel.text!.hasPrefix("-0"){
+        }else if formulaLabel.text!=="-0"{
             formulaLabel.text = ""
             formulaLabel.text = "-" + sender.titleLabel!.text!
         }else{
@@ -61,13 +50,17 @@ class ViewController: UIViewController {
                 isEqual = false
             }
             formulaLabel.text = formulaLabel.text! + sender.titleLabel!.text!
-            print("input3")
         }
         isInput = true
     }
     
     @IBAction func dotButtonInput(sender:UIButton){
         let dot = "."
+        if isOperation || isEqual{//演算子を選んだ直後
+            formulaLabel.text = "0"
+            isOperation = false
+            isEqual = false
+        }
         //formulaLabelの中に小数点がなかったら入力できる
         guard formulaLabel.text!.contains(dot) else {
             formulaLabel.text! = formulaLabel.text! + dot
@@ -98,152 +91,182 @@ class ViewController: UIViewController {
             isOperation = true
             //選択した演算子のボタンのタイトルラベル文字列が入る
             operations.append((sender.titleLabel?.text)!)
-            //現在、表示されている数字をDoubleにして１番目として保存
-            inputNums.append(NSString(string: formulaLabel.text!).doubleValue)
+            //現在、表示されている数字をDoubleにして配列に追加
+            inputNums.append(result)
             print("数字が入力された直後")
         }
         result = caluculate(operation: self.operations, inputNum: self.inputNums)
-        let str: String = String(format: "%g", result)
-        formulaLabel.text = str
+        formulaLabel.text = String(format: "%g", result)
     }
     
     //=ボタン
     @IBAction func equalButtonAnswer(sender:UIButton){
         var result:Double = NSString(string: formulaLabel.text!).doubleValue
-        if inputNums.count >= 1{
+        //1回以上演算子が選択されている
+        if inputNums.count >= 1 {
+            if !isEqual {
+                inputNums.append(NSString(string: formulaLabel.text!).doubleValue)
+            }
             isEqual = true
-            //選択した演算子のボタンのタイトルラベル文字列が入る
-            //operations.append((sender.titleLabel?.text)!)
-            inputNums.append(NSString(string: formulaLabel.text!).doubleValue)
-            print(operations)
-            print(inputNums)
-            //計算してreturnValに格納
             result = caluculate(operation: self.operations, inputNum: self.inputNums)
+            let str = operations.last!
+            operations.removeAll()
+            operations.append(str)
+            let i = inputNums.last!
+            inputNums.removeAll()
+            inputNums.append(result)
+            inputNums.append(i)
         }
-        inputNums.removeAll()
-        operations.removeAll()
-        inputNums.append(result)
-        let str: String = String(format: "%g", result)
-        formulaLabel.text = str
+        formulaLabel.text = String(format: "%g", result)
     }
     
     func caluculate(operation: [String], inputNum: [Double]) -> Double {
         var returnVal: Double = NSString(string: formulaLabel.text!).doubleValue
-        if operation.count == 2 {
-            //guard (operations[0] == "+" || operations[0] == "-") && (operations[1] == "×" || operations[1] == "÷") else {
-                //計算してreturnValに格納
-                returnVal = calc4Ways(num1: inputNum[0], num2: inputNum[1], opr1: operation[0], opr2: operation[1])
-                //print("guard")
-                //return returnVal
-            //}
+        //var inputNum = inputNum
+        var opr:[String] = []
+        var index:[Int] = []
+        var numArray:[Double] = []
+        var isContinuous1:Bool = true
+        var isContinuous2:Bool = true
+        if isEqual {
+            //operationをソートする
+            for i in 0..<operation.count {
+                switch operation[i] {
+                case "×","÷":
+                    //operationが+,×の場合×が先にoprにappendされる
+                    opr.append(operation[i])
+                    if isContinuous1{
+                        //1+2×3の場合2,3が入る
+                        index.append(operation.index(after: i-1))
+                        index.append(operation.index(after: i))
+                        isContinuous1 = false
+                    }else {//×,÷が連続の場合(××+とか)
+                        index.append(operation.index(after: i))
+                    }
+                default:
+                    break
+                }
+            }
+            for i in 0..<operation.count {
+                switch operation[i] {
+                case "+","-":
+                    opr.append(operation[i])
+                    if isContinuous2{
+                        index.append(operation.index(after: i-1))
+                        index.append(operation.index(after: i))
+                        isContinuous2 = false
+                    }else {
+                        index.append(operation.index(after: i))
+                    }
+                default:
+                    break
+                }
+            }
+            for i in 0..<index.count {
+                numArray.append(inputNum[index[i]])
+            }
+            print(opr,index,inputNum,numArray)
+            for i in 0..<opr.count {
+                returnVal = calc4Ways(num1: numArray[i], num2: numArray[i+1], opr: opr[i])
+                numArray[i+1] = returnVal
+            }
+        }else if operation.count == 2 {
+            //1+2*
+            if (operation[0] == "+" || operation[0] == "-") && (operation[1] == "×" || operation[1] == "÷") {
+                returnVal = inputNum[1]
+            }else {//1+2+
+                returnVal = calc4Ways(num1: inputNum[0], num2: inputNum[1], opr: operation[0])
+            }
             print("operation.count == 2")
-        }else if operation.count == 3 {
-            returnVal = calc4Ways2(num1: inputNum[0], num2: inputNum[1],num3: inputNum[2], opr1: operation[0], opr2: operation[1], opr3: operation[2])
+        }else if operation.count >= 3 {
+//            //operationをソートする
+//            for i in 0..<operation.count {
+//                switch operation[i] {
+//                case "×","÷":
+//                    //operationが+,×の場合×が先にoprにappendされる
+//                    opr.append(operation[i])
+//                    if isContinuous1{
+//                        //1+2×3の場合2,3が入る
+//                        index.append(operation.index(after: i-1))
+//                        index.append(operation.index(after: i))
+//                        isContinuous1 = false
+//                    }else {//×,÷が連続の場合(××+とか)
+//                        index.append(operation.index(after: i))
+//                    }
+//                default:
+//                    break
+//                }
+//            }
+//            for i in 0..<operation.count {
+//                switch operation[i] {
+//                case "+","-":
+//                    opr.append(operation[i])
+//                    if isContinuous2{
+//                        index.append(operation.index(after: i-1))
+//                        index.append(operation.index(after: i))
+//                        isContinuous2 = false
+//                    }else {
+//                        index.append(operation.index(after: i))
+//                    }
+//                default:
+//                    break
+//                }
+//            }
+//            print(opr,index,inputNum,numArray)
+//            for i in 0..<inputNum.count {
+//                numArray.append(inputNum[index[i]])
+//            }
+//            print(opr,index,inputNum,numArray)
+//            for i in 1..<opr.count {
+//                returnVal = calc4Ways(num1: numArray[i-1], num2: numArray[i], opr: opr[i])
+//                numArray[i] = returnVal
+//            }
+            //1+2*3*
+            if (operation[0] == "+" || operation[0] == "-") && (operation[1] == "×" || operation[1] == "÷") &&
+                (operation[2] == "×" || operation[2] == "÷") {
+                returnVal = calc4Ways(num1: inputNum[1], num2: inputNum[2], opr: operation[1])
+            }else {//1+2*3+
+                returnVal = calc4Ways2(num1: inputNum[0], num2: inputNum[1],num3: inputNum[2], opr1: operation[0], opr2: operation[1])
+            }
             print("operation.count == 3")
         }
+        //print(operation,inputNum)
         return returnVal
     }
     
-    func calc4Ways(num1: Double, num2: Double, opr1: String, opr2: String) -> Double{
+    func calc4Ways(num1: Double, num2: Double, opr: String) -> Double{
         var returnVal: Double = NSString(string: formulaLabel.text!).doubleValue
-        let str = opr1 + opr2
-        switch str {
-        case "++":
+        switch opr {
+        case "+":
             returnVal = num1 + num2
-        case "+-":
-            returnVal = num1 + num2
-        case "-+":
+        case "-":
             returnVal = num1 - num2
-        case "--":
-            returnVal = num1 - num2
-        case "×+":
+        case "×":
             returnVal = num1 * num2
-        case "×-":
-            returnVal = num1 * num2
-        case "÷+":
+        case "÷":
             returnVal = num1 / num2
-        case "÷-":
-            returnVal = num1 / num2
-//        case "+":
-//            returnVal = num1 + num2
-//        case "-":
-//            returnVal = num1 - num2
-//        case "×":
-//            returnVal = num1 * num2
-//        case "÷":
-//            returnVal = num1 / num2
-        default:
-            returnVal = num2
-            //break
-        }
-        print(str)
-//        //計算結果を配列の適切な要素番号に格納
-//        inputNums[0] = returnVal
-//        //演算子が最後の文字の場合1+2-
-//        if isOperation {
-//            operations[0] = operations[1]
-//            //いらなくなった配列の要素を削除(removeAtIndex(n))
-//            inputNums.remove(at: 1)//1+2=の場合は+2を残すので削除しない
-//        }
-//        operations.remove(at: 1)
-//        print(operations)
-//        print(operations.count)
-        return returnVal
-    }
-    
-    func calc4Ways2(num1: Double, num2: Double,num3: Double, opr1: String, opr2: String, opr3: String) -> Double{
-        var returnVal: Double = NSString(string: formulaLabel.text!).doubleValue
-        let str = opr1 + opr2 + opr3
-        switch str {
-        case "+×+" , "+×-":
-            returnVal = num1 + num2 * num3
-        case "+××" , "+×÷", "-××", "-×÷":
-            returnVal = num2 * num3
-        case "+÷+" , "+÷-" :
-            returnVal = num1 + num2 / num3
-        case "+÷×" , "+÷÷", "-÷×", "-÷÷":
-            returnVal = num2 / num3
-        case "-×+" , "-×-":
-            returnVal = num1 - num2 * num3
-        case "-÷+" , "-÷-":
-            returnVal = num1 - num2 / num3
-        case "×++" , "×+-":
-            returnVal = num1 * num2 + num3
-        case "×+×" , "×+÷", "×-×", "×-÷", "÷+×", "÷+÷", "÷-×", "÷-÷":
-            returnVal = num3
-        case "×-+" , "×--":
-            returnVal = num1 * num2 - num3
-        case "××+" , "××-", "×××", "××÷":
-            returnVal = num1 * num2 * num3
-        case "×÷+" , "×÷-", "×÷×", "×÷÷":
-            returnVal = num1 * num2 / num3
-        case "÷++" , "÷+-":
-            returnVal = num1 / num2 + num3
-        case "÷-+" , "÷--":
-            returnVal = num1 / num2 - num3
-        case "÷×+" , "÷×-", "÷××", "÷×÷":
-            returnVal = num1 / num2 * num3
-        case "÷÷+" , "÷÷-", "÷÷×" ,"÷÷÷":
-            returnVal = num1 / num2 / num3
         default:
             break
         }
-//        //計算結果を配列の適切な要素番号に格納
-//        inputNums[0] = returnVal
-//        //演算子が最後の文字の場合1+2×3+
-//        if isOperation {
-//            operations[0] = operations[2]
-//            //いらなくなった配列の要素を削除(removeAtIndex(n))
-//            inputNums.removeSubrange(1...2)
-//        }
-//        else {//1+2×3=
-//            inputNums[1] = inputNums[2]
-//            operations[0] = operations[1]
-//            inputNums.remove(at: 2)
-//        }
-//        operations.removeSubrange(1...2)
-//        print(operations)
-//        print(operations.count)
+        //print(opr)
+        return returnVal
+    }
+    
+    func calc4Ways2(num1: Double, num2: Double,num3: Double, opr1: String, opr2: String) -> Double{
+        var returnVal: Double = NSString(string: formulaLabel.text!).doubleValue
+        let str = opr1 + opr2
+        switch str {
+        case "+×":
+            returnVal = num1 + num2 * num3;
+        case "-×":
+            returnVal = num1 - num2 * num3;
+        case "+÷":
+            returnVal = num1 + num2 / num3;
+        case "-÷":
+            returnVal = num1 - num2 / num3;
+        default:
+            break
+        }
         return returnVal
     }
 }
